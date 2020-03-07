@@ -18,21 +18,20 @@ Quick start
 
 Pre-Requisites
 =================
-• You need to have Python 3.6 or above installed e.g. `I have python 3.7 installed`
+• You need to have Python 3.6 or above installed
 
-• You need to have a suitable IDE  e.g. `I have PyCharm CE`
 
 
 Steps to run it locally
 =================
 After downloading and unzipping the folder, you need to:
 
-• Open `PyCharm` and click on `Open` and go to the folder where you have unzipped click on it and then hit `Open` 
-That should import the project to your window
+• On your command line, go to the folder where you have unzipped this project
 
-• Once you have successfully imported the project, you should see a python script called `app.py` in the root of the folder
+• You should see a python script called `app.py` in the root of the folder
 
-• Right click on that script and click `Run app` and that should generate the 3 csv files in the output directory which is also present
-in the root of the folder
+• Run the python script by running this command - `python app.py`
+
+• If the run was successful, you should see the 3 reports generated in the `output` folder
 
 
