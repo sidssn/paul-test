@@ -22,11 +22,11 @@ Pre-Requisites
 
 
 
-Steps to run it locally
+Steps to run application from command line
 =================
 After downloading and unzipping the folder, you need to:
 
-• On your command line, go to the folder where you have unzipped this project
+• On your command line, go to the folder where you have unzipped this project (should be a folder named `nhsd-test`)
 
 • You should see a python script called `app.py` in the root of the folder
 
@@ -34,4 +34,12 @@ After downloading and unzipping the folder, you need to:
 
 • If the run was successful, you should see the 3 reports generated in the `output` folder
 
+• NOTE: If you wish to run it from via the python repl, you can do that by typing `python` ,from inside the same folder, on your cmd line and after the repl is open, 
+you can run the command `exec(open("app.py").read())` which should give you the same outcome
 
+
+Steps to run tests from command line
+=================
+• On your command line, go to the folder where you have unzipped this project
+
+• Run the python test script by running this command - `python -m unit_tests.tests`
