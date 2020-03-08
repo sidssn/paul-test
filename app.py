@@ -3,10 +3,13 @@ from datetime import datetime
 import statistics
 import csv
 
-days_of_week = {"Monday": 0, "Tuesday": 0, "Wednesday": 0, "Thursday": 0, "Friday": 0, "Saturday": 0, "Sunday": 0}
-IS_REVERSE = True
+"""
+This module consists of functions to generate 3 reports based on the requirements
+"""
+
 INTEGRATION = "Integration"
 LIVE = "Live"
+days_of_week = {"Monday": 0, "Tuesday": 0, "Wednesday": 0, "Thursday": 0, "Friday": 0, "Saturday": 0, "Sunday": 0}
 
 
 def get_day_of_week_deployment_frequency(data):
@@ -16,28 +19,19 @@ def get_day_of_week_deployment_frequency(data):
     return days_of_week
 
 
-def get_slow_releases(data):
-    releases_by_grp = get_releases_by_group(data)
-
-    # Get all successful releases to Integration
-    success_int = get_successful_releases(releases_by_grp, INTEGRATION)
-
-    # Get all successful releases to Live
-    success_live = get_successful_releases(releases_by_grp, LIVE)
-
+def get_slow_releases(releases_by_group, success_int, success_live):
     time_diff_in_successful_releases = get_time_diff_from_successful_int_to_live_in_release(success_live, success_int)
-    project_data = grp_into_project_grp(releases_by_grp, time_diff_in_successful_releases)
-    return get_average_then_sort(project_data)
+    project_data = group_into_project_group(releases_by_group, time_diff_in_successful_releases)
+    project_data = get_average(project_data)
+    return sort_dictionary(project_data, True)
 
 
-def get_failed_releases(data):
+def get_failed_releases(releases_by_group, success_int, success_live):
     """
     Gets the list of all the failed releases by project group
     """
-    releases_by_grp = get_releases_by_group(data)
-    success_int = get_successful_releases(releases_by_grp, INTEGRATION)
-    success_live = get_successful_releases(releases_by_grp, LIVE)
-    return get_unsuccessful_releases_count_then_sort(releases_by_grp,success_live, success_int)
+    unsuccessful_rel_by_proj_group = get_unsuccessful_releases_count(releases_by_group,success_live, success_int)
+    return sort_dictionary(unsuccessful_rel_by_proj_group, True)
 
 
 def load_data():
@@ -72,7 +66,7 @@ def get_releases_by_group(data):
     """
     Group releases by project group in the form of a dictionary
     """
-    project_grp_dict = {}
+    project_group_dict = {}
 
     # Loop over each project and get releases
     for project in data:
@@ -81,22 +75,22 @@ def get_releases_by_group(data):
 
         # Process each release for a project and add to group
         for release in releases:
-            if group in project_grp_dict:
-                project_grp_dict[group].append(release)
+            if group in project_group_dict:
+                project_group_dict[group].append(release)
             else:
-                project_grp_dict[group] = []
-                project_grp_dict[group].append(release)
+                project_group_dict[group] = []
+                project_group_dict[group].append(release)
 
-    return project_grp_dict
+    return project_group_dict
 
 
-def get_successful_releases(releases_by_grp, env):
+def get_successful_releases(releases_by_group, env):
     """
     Function to return a dictionary of all successful releases for that release version based on the environment given
     """
     success_deploy = {}
-    for key in releases_by_grp.keys():
-        for rel in releases_by_grp[key]:
+    for key in releases_by_group.keys():
+        for rel in releases_by_group[key]:
             for dep in rel["deployments"]:
                 if dep["environment"] == env and dep["state"] == "Success":
                     success_deploy[rel["version"]] = dep["created"]
@@ -115,14 +109,14 @@ def get_time_diff_from_successful_int_to_live_in_release(success_live, success_i
     return time_diff_in_releases
 
 
-def grp_into_project_grp(releases_by_grp, time_diff_in_releases):
+def group_into_project_group(releases_by_group, time_diff_in_releases):
     """
     Group the time taken by each release in a list for each project group and store it in a dictionary
     with the key as the project group
     """
     project_data = {}
-    for key in releases_by_grp.keys():
-        for rel in releases_by_grp[key]:
+    for key in releases_by_group.keys():
+        for rel in releases_by_group[key]:
             if rel["version"] in time_diff_in_releases:
                 if key in project_data:
                     project_data[key].append(time_diff_in_releases[rel["version"]])
@@ -132,40 +126,40 @@ def grp_into_project_grp(releases_by_grp, time_diff_in_releases):
     return project_data
 
 
-def get_average_then_sort(project_data):
+def get_average(project_data):
     """
     Get the average time taken for each release in that project group and sort with the longest time taken first
     """
     for key in project_data.keys():
         if len(project_data[key]) != 0:
             project_data[key] = statistics.mean(project_data[key])
-    return sort_dictionary(project_data)
+    return project_data
 
 
-def get_unsuccessful_releases_count_then_sort(releases_by_grp, success_live, success_int):
+def get_unsuccessful_releases_count(releases_by_group, success_live, success_int):
     """
     Loop through all the releases that had successful integration deployments but no successful live ones and store the
     count in a dict with the project group as the key
     """
     unsuccessful_rel = { k : success_int[k] for k in set(success_int) - set(success_live)}
-    unsuccessful_rel_by_proj_grp = {}
-    for key in releases_by_grp.keys():
-        for rel in releases_by_grp[key]:
+    unsuccessful_rel_by_proj_group = {}
+    for key in releases_by_group.keys():
+        for rel in releases_by_group[key]:
             if rel["version"] in unsuccessful_rel:
-                if key in unsuccessful_rel_by_proj_grp:
-                    unsuccessful_rel_by_proj_grp[key] += 1
+                if key in unsuccessful_rel_by_proj_group:
+                    unsuccessful_rel_by_proj_group[key] += 1
                 else:
-                    unsuccessful_rel_by_proj_grp[key] = 1
+                    unsuccessful_rel_by_proj_group[key] = 1
 
-    return sort_dictionary(unsuccessful_rel_by_proj_grp)
+    return unsuccessful_rel_by_proj_group
 
 
 def get_datetime(created):
     return datetime.strptime(created, "%Y-%m-%dT%H:%M:%S.000Z")
 
 
-def sort_dictionary(dictionary):
-    return sorted(dictionary.items(), key=lambda kv: kv[1], reverse=IS_REVERSE)
+def sort_dictionary(dictionary, is_reverse):
+    return sorted(dictionary.items(), key=lambda kv: kv[1], reverse=is_reverse)
 
 
 def get_headers(field1, field2):
@@ -191,18 +185,26 @@ def write_csv(file_name, field_names, rows):
             writer.writerow(row)
 
 
-def main_function():
+def generate_reports():
     data = load_data()
     days_of_live_deployments = get_day_of_week_deployment_frequency(data)
     write_csv("output/1_deployment_frequency.csv", get_headers("DaysOfWeek", "LiveDeployments"),
               list(days_of_live_deployments.items()))
 
-    slow_releases = get_slow_releases(data)
+    releases_by_group = get_releases_by_group(data)
+
+    # Get all successful releases to Integration
+    success_int = get_successful_releases(releases_by_group, INTEGRATION)
+
+    # Get all successful releases to Live
+    success_live = get_successful_releases(releases_by_group, LIVE)
+
+    slow_releases = get_slow_releases(releases_by_group, success_int, success_live)
     write_csv("output/2_slow_releases.csv", get_headers("ProjectGroup", "AverageTimeToLive"), slow_releases)
 
-    failed_releases = get_failed_releases(data)
+    failed_releases = get_failed_releases(releases_by_group, success_int, success_live)
     write_csv("output/3_failing_releases.csv", get_headers("ProjectGroup", "FailedReleases"), failed_releases)
 
 
 if __name__ == "__main__":
-    main_function()
+    generate_reports()
