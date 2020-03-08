@@ -1,6 +1,7 @@
 import json
 import unittest
-from app import get_successful_releases, get_releases_by_group, get_time_diff_from_successful_int_to_live_in_release, get_unsuccessful_releases_count, write_csv, get_headers
+from app import (get_successful_releases, get_releases_by_group, get_time_diff_from_successful_int_to_live_in_release,
+                 get_unsuccessful_releases_count, write_csv, get_headers)
 import filecmp, os
 
 

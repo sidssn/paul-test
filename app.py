@@ -1,11 +1,22 @@
+"""
+This module consists of functions to reports based on the below scenarios:
+
+Generate the following report based on the number of deployments to Live (successful or unsuccessful)
+
+Generate the following based on the average time taken in minutes for a successful release to go from Integration to
+Live grouped by project_group and ordered by the time taken (longest first)
+
+
+Prepare a report that identifies project groups with the highest number of releases that have a successful deployment
+to Integration but never have a corresponding successful deployment to Live. The output should be ordered by the
+count (highest first).
+"""
+
 import json
 from datetime import datetime
 import statistics
 import csv
 
-"""
-This module consists of functions to generate 3 reports based on the requirements
-"""
 
 INTEGRATION = "Integration"
 LIVE = "Live"
@@ -23,7 +34,7 @@ def get_slow_releases(releases_by_group, success_int, success_live):
     time_diff_in_successful_releases = get_time_diff_from_successful_int_to_live_in_release(success_live, success_int)
     project_data = group_into_project_group(releases_by_group, time_diff_in_successful_releases)
     project_data = get_average(project_data)
-    return sort_dictionary(project_data, True)
+    return project_data
 
 
 def get_failed_releases(releases_by_group, success_int, success_live):
@@ -31,7 +42,7 @@ def get_failed_releases(releases_by_group, success_int, success_live):
     Gets the list of all the failed releases by project group
     """
     unsuccessful_rel_by_proj_group = get_unsuccessful_releases_count(releases_by_group,success_live, success_int)
-    return sort_dictionary(unsuccessful_rel_by_proj_group, True)
+    return unsuccessful_rel_by_proj_group
 
 
 def load_data():
@@ -158,7 +169,7 @@ def get_datetime(created):
     return datetime.strptime(created, "%Y-%m-%dT%H:%M:%S.000Z")
 
 
-def sort_dictionary(dictionary, is_reverse):
+def sort_dictionary(dictionary, is_reverse=False):
     return sorted(dictionary.items(), key=lambda kv: kv[1], reverse=is_reverse)
 
 
@@ -200,10 +211,12 @@ def generate_reports():
     success_live = get_successful_releases(releases_by_group, LIVE)
 
     slow_releases = get_slow_releases(releases_by_group, success_int, success_live)
-    write_csv("output/2_slow_releases.csv", get_headers("ProjectGroup", "AverageTimeToLive"), slow_releases)
+    write_csv("output/2_slow_releases.csv", get_headers("ProjectGroup", "AverageTimeToLive"),
+              sort_dictionary(slow_releases, True))
 
     failed_releases = get_failed_releases(releases_by_group, success_int, success_live)
-    write_csv("output/3_failing_releases.csv", get_headers("ProjectGroup", "FailedReleases"), failed_releases)
+    write_csv("output/3_failing_releases.csv", get_headers("ProjectGroup", "FailedReleases"),
+              sort_dictionary(failed_releases, True))
 
 
 if __name__ == "__main__":
