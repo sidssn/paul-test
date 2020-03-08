@@ -26,7 +26,7 @@ Steps to run application from command line
 =================
 After downloading and unzipping the folder, you need to:
 
-• On your command line, go to the folder where you have unzipped this project (should be a folder named `nhsd-test`)
+• On your command line, go to the folder where you have unzipped this project
 
 • You should see a python script called `app.py` in the root of the folder
 
