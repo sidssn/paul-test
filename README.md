@@ -34,11 +34,14 @@ After downloading and unzipping the folder, you need to:
 
 • If the run was successful, you should see the 3 reports generated in the `output` folder
 
-• NOTE: If you wish to run it from via the python repl, you can do that by typing `python` ,from inside the same folder, on your cmd line and after the repl is open, 
-you can run the below steps: 
-    `>>> import app`
-    `>>> app.generate_reports()` (which should give you the same outcome in the `output` folder)
-    `>>> exit()`
+• NOTE: If you wish to run it from via the python repl, you can do that by typing `python` from inside the same folder 
+on your cmd line and after the repl is open, you can run the below steps: 
+
+>    `>>> import app`
+
+>    `>>> app.generate_reports()` (which should give you the same outcome in the `output` folder)
+
+>    `>>> exit()`
 
 
 Steps to run tests from command line
