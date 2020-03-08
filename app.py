@@ -140,7 +140,7 @@ def group_into_project_group(releases_by_group, time_diff_in_releases):
     with the key as the project group
     :param releases_by_group: Dictionary where the list of releases are grouped by the project group
     :param time_diff_in_releases: Dictionary of the time difference in releases between successful Integration to Live
-    grouped by release version as the key
+    in minutes grouped by release version as the key
     """
     project_data = {}
     for key in releases_by_group.keys():
@@ -157,8 +157,8 @@ def group_into_project_group(releases_by_group, time_diff_in_releases):
 def get_average(project_data):
     """
     Get the average time taken for each release in that project group and sort with the longest time taken first
-    :param project_data: Input dictionary with list of all the times it has taken from successful deployment from
-    Integration to Live in the form of a list grouped by the project group as the key
+    :param project_data: Input dictionary with list of all the times it has taken in minutes from successful deployment
+    from Integration to Live in the form of a list grouped by the project group as the key
     """
     for key in project_data.keys():
         if len(project_data[key]) != 0:
@@ -198,6 +198,8 @@ def sort_dictionary(dictionary, is_reverse=False):
 def get_headers(field1, field2):
     """
     Function to set the headers on the csv file
+    :param field1: Header to be set for the first column in the csv file
+    :param field2: Header to be set for the second column in the csv file
     """
     field_names = [
         field1,
